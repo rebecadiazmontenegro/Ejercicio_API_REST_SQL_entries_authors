@@ -1,3 +1,7 @@
+-- Hace que no puedan entrar títulos repetidos
+ALTER TABLE entries
+ADD CONSTRAINT unique_title UNIQUE (title);
+
 -- Crear tabla authors
 CREATE TABLE authors (
   id_author serial NOT NULL PRIMARY KEY, 
@@ -34,6 +38,13 @@ VALUES
 ('El rayo gana la champions','Victoria por goleada en la final de la champions',(SELECT id_author FROM authors WHERE email='albertu@thebridgeschool.es'),'Deportes'),
 ('Amanece Madrid lleno de arena','La calima satura Madrid de arena. Pérdidas millonarias',(SELECT id_author FROM authors WHERE email='birja@thebridgeschool.es'),'Sucesos'),
 ('Descubren el motor de agua','Fin de la gasolina. A partir de ahora usaremos agua en nuestros coches',(SELECT id_author FROM authors WHERE email='alvaru@thebridgeschool.es'),'Ciencia');
+
+-- Consultar todas las entradas con sus autores y categorías
+SELECT e.title, e.content, e.date, c.name AS category, a.name AS author_name, a.surname AS author_surname
+FROM entries AS e
+INNER JOIN authors AS a ON e.id_author = a.id_author
+INNER JOIN categories AS c ON e.id_category = c.id_category;
+
 -- Buscar entries por email usuario
 SELECT * FROM entries WHERE id_author=(SELECT id_author FROM authors WHERE email='alejandru@thebridgeschool.es');
 -- Buscar datos por email de usuario y cruzar datos
@@ -54,3 +65,69 @@ ORDER BY entries.title;
 UPDATE entries
 	SET content='Back is back', date='2024-06-17', id_author=(SELECT id_author FROM authors WHERE email='alvaru@thebridgeschool.es'), category='Software'
 	WHERE title='Estamos de Lunes de Back';
+
+
+-- MIS QUERIES 
+
+-- [GET] http://localhost:3000/api/entries Retorna todas las entries
+SELECT * FROM entries 
+
+-- [GET] http://localhost:3000/api/entries?email=alejandru@thebridgeschool.es Retorna un objeto con las entries del autor buscadO (Si id)
+SELECT 
+  e.title,
+  e.content,
+  e.date,
+  e.category,
+  a.name,
+  a.surname,
+  a.email AS email_author,
+  a.image
+FROM entries e
+INNER JOIN authors a
+ON e.id_author = a.id_author
+WHERE a.email = 'alejandru@thebridgeschool.es';
+
+-- [PUT] http://localhost:3000/api/entries/ (parecido a POST) modifica una entry por completo con nuevos datos y retorna un status 200. Buscar por título para editar entry.
+UPDATE entries
+SET 
+  title = 'Noticia: SOL y calor extremo en Madrid',
+  content = 'Actualización: temperaturas récord en la capital.',
+  category = 'Tiempo',
+  id_author = 3,
+  date = CURRENT_DATE
+WHERE title = 'Noticia: SOL en Madrid';
+
+-- [DELETE] http://localhost:3000/api/entries/ Borra una entry y retorna un status 200. Búsqueda por título de entry para borrar. Payload:
+DELETE FROM entries
+WHERE title = 'Noticia: SOL en Madrid';
+
+-- [GET] http://localhost:3000/api/authors Retorna un objeto con los datos de todos los autores. Retorna un status 200.
+SELECT * FROM authors;
+
+-- [GET] http://localhost:3000/api/authors?email=alejandru@thebridgeschool.es Retorna un objeto con los datos del autor buscado. Retorna un status 200 
+SELECT *
+FROM authors
+WHERE email = 'alejandru@thebridgeschool.es';
+
+-- [POST] http://localhost:3000/api/authors/ Se envía por POST los datos del autor a crear y retorna un status 201.
+INSERT INTO authors (name, surname, email, image)
+VALUES ('Carla', 'González', 'carla@thebridgeschool.es', 'https://randomuser.me/api/portraits/thumb/women/99.jpg')
+
+-- [PUT] http://localhost:3000/api/authors/ Actualiza los datos de un autor y retorna un status 200. 
+UPDATE authors
+SET 
+  name = 'Álvaro',
+  surname = 'Rivero',
+  email = 'alvaru@thebridgeschool.es',
+  image = 'https://randomuser.me/api/portraits/thumb/men/47.jpg'
+WHERE id_author = 3
+
+-- [DELETE] http://localhost:3000/api/authors/ Borra un autor y retorna un status 200. Búsqueda por email
+DELETE FROM authors
+WHERE email = 'carla@thebridgeschool.es'
+
+
+
+
+
+
