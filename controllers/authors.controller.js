@@ -3,16 +3,23 @@ const author = require("../models/authors.model"); // Importar el modelo de la B
 
 // GET http://localhost:3000/api/authors --> ALL
 // GET http://localhost:3000/api/authors?email=[email]
+
 const getAuthors = async (req, res) => {
-  let authors;
-
-  if (req.query.email) {
-    authors = await author.getAuthorsByEmail(req.query.email);
-  } else {
-    authors = await author.getAllAuthors();
+  try {
+    let authors;
+    if (req.query.email) {
+      authors = await author.getAuthorsByEmail(req.query.email);
+      if (!authors || authors.length === 0) {
+        return res.status(404).json({ message: 'Autor no encontrado con ese correo electrónico' });
+      }
+    } else {
+      authors = await author.getAllAuthors();
+    }
+    res.status(200).json(authors);
+  } catch {
+    console.error('Error al obtener los autores:', error);
+    res.status(500).json({ message: 'Error al obtener los autores', error: error.message });
   }
-
-  res.status(200).json(authors);
 };
 
 // POST http://localhost:3000/api/authors/
@@ -54,7 +61,7 @@ const editAuthor = async (req, res) => {
     if (result === 0) {
       return res
         .status(404)
-        .json({ message: "No se encontró ningún autor con ese título." });
+        .json({ message: "No se encontró ningún autor con ese id." });
     }
 
     res.status(200).json({ message: `usuario actualizado: ${email}` });
