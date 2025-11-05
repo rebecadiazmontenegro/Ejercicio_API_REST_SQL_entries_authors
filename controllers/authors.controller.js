@@ -3,14 +3,13 @@ const author = require("../models/authors.model"); // Importar el modelo de la B
 
 // GET http://localhost:3000/api/authors --> ALL
 // GET http://localhost:3000/api/authors?email=[email]
-
 const getAuthors = async (req, res) => {
   try {
     let authors;
     if (req.query.email) {
       authors = await author.getAuthorsByEmail(req.query.email);
       if (!authors || authors.length === 0) {
-        return res.status(404).json({ message: 'Autor no encontrado con ese correo electrónico' });
+        return res.status(404).json({ message: `Autor no encontrado con el correo ${req.query.email}`});
       }
     } else {
       authors = await author.getAllAuthors();

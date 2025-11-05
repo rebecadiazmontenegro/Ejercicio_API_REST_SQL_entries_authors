@@ -4,15 +4,26 @@ const entry = require("../models/entries.model"); // Importar el modelo de la BB
 // GET http://localhost:3000/api/entries --> ALL
 // GET http://localhost:3000/api/entries?email=[email] --> por email
 const getEntries = async (req, res) => {
-  let entries;
-
-  if (req.query.email) {
-    entries = await entry.getEntriesByEmail(req.query.email);
-  } else {
-    entries = await entry.getAllEntries();
+  try {
+    let entries;
+    if (req.query.email) {
+      entries = await entry.getEntriesByEmail(req.query.email);
+      if (!entries || entries.length === 0) {
+        return res
+          .status(404).json({
+            message: `No se han encontrado entries con el email: ${req.query.email}`,
+          });
+      }
+    } else {
+      entries = await entry.getAllEntries();
+    }
+    res.status(200).json(entries); // [] con las entries encontradas
+  } catch (error) {
+    console.error("Error al obtener las entries:", error);
+    res
+      .status(500)
+      .json({ message: "Error del servidor al obtener las entries" });
   }
-
-  res.status(200).json(entries); // [] con las entries encontradas
 };
 
 // PUT http://localhost:3000/api/entries
@@ -44,7 +55,6 @@ const editEntry = async (req, res) => {
     }
 
     res.status(200).json({ message: `Se ha modificado la entry ${title}` });
-
   } catch (error) {
     console.error("Error al actualizar la entrada:", error);
     res.status(500).json({ message: "Error del servidor." });
