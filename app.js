@@ -13,7 +13,7 @@ const error404 = require("./middlewares/error404");
 //Morgan
 const morgan = require("./middlewares/morgan");
 // Configuración del logger con Morgan
-app.use(morgan(':method :url :status :param[id] - :response-time ms :body'));
+// app.use(morgan(':method :url :status :param[id] - :response-time ms :body'));
 
 const entriesRoutes = require("./routes/entries.routes");
 const authorsRoutes = require("./routes/authors.routes");
