@@ -1,7 +1,17 @@
 const queries = {
-  getAllEntries: `
-    SELECT * FROM entries
-    `,
+getAllEntries: `
+  SELECT
+    entries.title,
+    entries.content,
+    entries.date,
+    entries.category,
+    authors.name,
+    authors.surname,
+    authors.email,
+    authors.image
+  FROM entries
+  JOIN authors ON entries.id_author = authors.id_author;
+`,
 
   getEntriesByEmail: `
     SELECT 

@@ -17,11 +17,19 @@ const getAuthors = async (req, res) => {
 
 // POST http://localhost:3000/api/authors/
 const createAuthor = async (req, res) => {
+  try{
   const newAuthor = req.body; // {title,content,email,category}
   const response = await author.createAuthor(newAuthor);
   res.status(201).json({
     message: `usuario creado: ${newAuthor.email}`,
   });
+  } catch (error){
+   console.error("Error al crear el autor:", error);
+    res.status(500).json({
+      message: "Error al crear el autor",
+      error: error.message,
+  });
+  };
 };
 
 // PUT http://localhost:3000/api/authors/
